@@ -2,11 +2,11 @@ class Carro:
     modelo : str
     marca : str
     cor : str
-    odometro : 0.0
-    motor_on : False
+    odometro = 0.0
+    motor_on = False
 
-    def __init__(self, modelo : str, marca : str, cor : str,
-                       odometro : float, motor : bool):
+    def __init__(self, modelo : str, marca : str, cor : str, #metodo contructor dentro da classe
+                       odometro : float, motor : bool): #parametros do constructor, ele ira receber o "modelo" atributo dentro do bloco
         self.modelo = modelo
         self.marca = marca
         self.cor = cor
@@ -31,7 +31,7 @@ class Carro:
         else:
             raise Exception("Erro: Motor já desligado!")
 
-    def __str__(self):
+    def __str__(self): #todo objeto em python tem o metodo __str__
         info = (f'Carro {self.modelo}, marca {self.marca}, '
                 f'cor {self.cor}\n{self.odometro} Km, '
                 f'motor {self.motor_on}')
