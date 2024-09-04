@@ -1,55 +1,24 @@
 import pickle
 import traceback
-
+import gerenciar_urna
 from common import *
 
 FILE_ELEITORES = 'eleitores.pkl'
 FILE_CANDIDATOS = 'candidatos.pkl'
 
-def menu_eleitor():
+def menu():
     print("1-Novo Eleitor")
     print("2-Atualizar Eleitor")
-    print("3-Sair")
-    op = int(input("Digite a opcao [1,2,3]? "))
-    while op not in (1, 2, 3):
-        op = int(input("Digite a opcao [1,2,3]? "))
+    print("3-Inserir Candidato")
+    print("4-Listar Candidatos")
+    print("5-Iniciar Urna")
+    print("6-Testar Urna")
+    print("7-Emitir Zeresima")
+    print("8- Finalizar")
+    op = int(input("Digite a opcao [1 a 8]? "))
+    while op not in range(1, 9):
+        op = int(input("Digite a opcao [1 a 8]? "))
     return op
-
-def menu_candidato():
-    print("1-Novo Candidato")
-    print("2-Listar Candidatos")
-    print("3-Sair")
-    op = int(input("Digite a opcao [1,2,3]? "))
-    while op not in (1, 2, 3):
-        op = int(input("Digite a opcao [1,2,3]? "))
-    return op
-
-def inserir_candidatos(candidatos):
-    numero = int(input("Digite o numero"))
-
-    if numero in candidatos:
-        raise Exception("Candidato já existente!")
-
-    nome = input("Digite o nome: ")
-    RG = input("Digite o RG: ")
-    CPF = input("Digite o CPF: ")
-
-    candidato = Candidato(nome, RG, CPF, numero)
-    candidatos[numero] = numero
-
-    with open(FILE_CANDIDATOS, 'wb') as arquivo:
-        pickle.dump(candidatos, arquivo)
-
-    print('Candidato gravado com sucesso!')
-    print(candidato)
-
-def lista_candidatos(candidatos):
-    for c in candidatos.values():
-        print("Candidato numero: "+str(c.get_numero()))
-        print("-----------------------------------------")
-        print(c)
-
-
 
 def inserir_eleitor(eleitores):
     titulo = int(input("Digite o Títlulo: "))
@@ -60,8 +29,8 @@ def inserir_eleitor(eleitores):
     nome = input("Digite o nome: ")
     RG = input("Digite o RG: ")
     CPF = input("Digite o CPF: ")
-    secao = input("Digite a secao: ")
-    zona = input("Digite a zona: ")
+    secao = int(input("Digite a secao: "))
+    zona = int(input("Digite a zona: "))
 
     eleitor = Eleitor(nome, RG, CPF, titulo, secao, zona)
     eleitores[eleitor.get_titulo()] = eleitor
@@ -78,8 +47,8 @@ def atualizar_eleitor(eleitores):
     if titulo in eleitores:
         eleitor = eleitores[titulo]
         print(eleitor)
-        secao = input("Digite a nova secao: ")
-        zona = input("Digite a nova zona: ")
+        secao = int(input("Digite a nova secao: "))
+        zona = int(input("Digite a nova zona: "))
         eleitor.secao = secao
         eleitor.zona = zona
 
@@ -91,54 +60,73 @@ def atualizar_eleitor(eleitores):
     else:
         raise Exception('Titulo inexistente')
 
+def inserir_candidato(candidatos):
+    numero = int(input("Digite o número do candidato: "))
+
+    if numero in candidatos:
+        raise Exception("Candidato já existente!")
+
+    nome = input("Digite o nome: ")
+    RG = input("Digite o RG: ")
+    CPF = input("Digite o CPF: ")
+
+    candidato = Candidato(nome, RG, CPF, numero)
+    candidatos[candidato.get_numero()] = candidato
+
+    with open(FILE_CANDIDATOS, 'wb') as arquivo:
+        pickle.dump(candidatos, arquivo)
+
+    print('Candidato gravado com sucesso!')
+    print(candidato)
+
+def listar_candidatos(candidatos):
+    for candidato in candidatos.values():
+        print(candidato)
+
 if __name__ == "__main__":
     eleitores = {} #dicionário a chave será o titulo
-    candidatos = {} #chave vai ser o numero
     try:
         print("Carregando arquivo de eleitores ...")
 
         with open(FILE_ELEITORES, 'rb') as arquivo:
             eleitores = pickle.load(arquivo)
+    except FileNotFoundError as fnfe:
+        print(fnfe)
+        print("Arquivo nao encontrado, nenhum eleitor carregado!")
 
-        print('carregando arquivos de canditadotas')
+    candidatos = {}  # dicionário a chave será o titulo
+    try:
+        print("Carregando arquivo de candidatos ...")
+
         with open(FILE_CANDIDATOS, 'rb') as arquivo:
             candidatos = pickle.load(arquivo)
     except FileNotFoundError as fnfe:
         print(fnfe)
-        print("Arquivos nao encontrados")
+        print("Arquivo nao encontrado, nenhum candidato carregado!")
 
-    open_usr = 1
-    while open_usr in (1,2):
-        open_usr = int(input("Gerenciar 1- Candidato, 2- Eleitores [1,2]: "))
+    opcao = 1
+    while opcao in range(1,9):
+        try:
+            opcao = menu()
 
-        if open_usr == 1:
-            opcao = 1
-            while opcao in (1,2,3):
-                try:
-                    opcao = menu_candidato()
-
-                    if opcao == 1:
-                        inserir_candidatos(candidatos)
-                    elif opcao == 2:
-                        lista_candidatos(candidatos)
-                    elif opcao == 3:
-                        print('Saindo do menu')
-                except Exception as e:
-                    print('Erro')
-                    print(e)
-        else:
-            opcao = 1
-            while opcao in (1,2,3):
-                try:
-                    opcao = menu_eleitor()
-
-                    if opcao == 1:
-                        inserir_eleitor(eleitores)
-                    elif opcao == 2:
-                        atualizar_eleitor(eleitores)
-                    elif opcao == 3:
-                        print("Saindo!")
-                        break
-                except Exception as e:
-                    #traceback.print_exc()
-                    print(e)
+            if opcao == 1:
+                inserir_eleitor(eleitores)
+            elif opcao == 2:
+                atualizar_eleitor(eleitores)
+            elif opcao == 3:
+                inserir_candidato(candidatos)
+            elif opcao == 4:
+                listar_candidatos(candidatos)
+            elif opcao == 5:
+                urna = gerenciar_urna.iniciar_urna(eleitores.values(),
+                                                   candidatos.values())
+            elif opcao == 6:
+                gerenciar_urna.votar(urna)
+            elif opcao == 7:
+                gerenciar_urna.emitir_zeresima(urna)
+            elif opcao == 8:
+                gerenciar_urna.encerrar_urna(urna)
+                break
+        except Exception as e:
+            #traceback.print_exc()
+            print(e)
